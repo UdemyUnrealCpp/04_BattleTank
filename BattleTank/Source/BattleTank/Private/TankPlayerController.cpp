@@ -43,8 +43,10 @@ void ATankPlayerController::AimTowardsCrosshair()
 
 	if (GetSightRayHitLocation(hitLocation))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Hit location : %s"), *hitLocation.ToString());
+		//UE_LOG(LogTemp, Warning, TEXT("Hit location : %s"), *hitLocation.ToString());
+		
 		//tell controlled tank to aim at this point
+		GetControlledTank()->AimAt(hitLocation);
 	}		
 }
 
@@ -87,7 +89,7 @@ bool ATankPlayerController::GetLookVectorHitLocation(FVector LookDirection, FVec
 	if (GetWorld()->LineTraceSingleByChannel(HitResult, StartLocation, EndLocation, ECollisionChannel::ECC_Visibility, TraceParams))
 	{
 		HitLocation = HitResult.Location;
-		UE_LOG(LogTemp, Warning, TEXT("HIT : %s"), *HitResult.GetActor()->GetName());
+		//UE_LOG(LogTemp, Warning, TEXT("HIT : %s"), *HitResult.GetActor()->GetName());
 		return true;
 	}
 

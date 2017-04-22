@@ -43,13 +43,13 @@ void ATankPlayerController::AimTowardsCrosshair()
 
 	if (GetSightRayHitLocation(hitLocation))
 	{
-		//UE_LOG(LogTemp, Warning, TEXT("Look direction : %s"), *hitLocation.ToString());
+		UE_LOG(LogTemp, Warning, TEXT("Hit location : %s"), *hitLocation.ToString());
 		//tell controlled tank to aim at this point
 	}		
 }
 
 //Get world location if linetrace through crosshair, true if hits landscape
-bool ATankPlayerController::GetSightRayHitLocation(FVector &outHitLocation) const
+bool ATankPlayerController::GetSightRayHitLocation(FVector &HitLocation) const
 {
 	//find crosshair position in pixel coordinate
 	int32 iViewportSizeX, iViewportSizeY;
@@ -61,14 +61,11 @@ bool ATankPlayerController::GetSightRayHitLocation(FVector &outHitLocation) cons
 	FVector LookDirection;
 	if (GetLookDirection(ScreenLocation, LookDirection))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Look Direction : %s"), *LookDirection.ToString());
+		//UE_LOG(LogTemp, Warning, TEXT("Look Direction : %s"), *LookDirection.ToString());
+		
+		//line trace along that look direction and see what we hit (up to max range)
+		GetLookVectorHitLocation(LookDirection, HitLocation);		
 	}
-	
-
-	//line trace along that look direction and see what we hit (up to max range)
-
-
-
 	return true;
 }
 
@@ -77,6 +74,24 @@ bool ATankPlayerController::GetLookDirection(FVector2D ScreenLocation, FVector& 
 {	
 	FVector WorldLocation;
 	return DeprojectScreenPositionToWorld(ScreenLocation.X, ScreenLocation.Y, WorldLocation, LookDirection);	
+}
+
+bool ATankPlayerController::GetLookVectorHitLocation(FVector LookDirection, FVector& HitLocation) const
+{
+	FHitResult HitResult;
+	//get camera location
+	FVector StartLocation = this->PlayerCameraManager->GetCameraLocation();
+	FVector EndLocation = StartLocation + (LookDirection * LineTraceRangeCentimeters);
+	FCollisionQueryParams TraceParams = FCollisionQueryParams(FName(TEXT("")), false, GetControlledTank());
+
+	if (GetWorld()->LineTraceSingleByChannel(HitResult, StartLocation, EndLocation, ECollisionChannel::ECC_Visibility, TraceParams))
+	{
+		HitLocation = HitResult.Location;
+		UE_LOG(LogTemp, Warning, TEXT("HIT : %s"), *HitResult.GetActor()->GetName());
+		return true;
+	}
+
+	return false;
 }
 
 

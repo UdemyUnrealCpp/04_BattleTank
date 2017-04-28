@@ -10,7 +10,7 @@ UTankAimingComponent::UTankAimingComponent()
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = true;
+	PrimaryComponentTick.bCanEverTick = true; //TODO should this really tick ?
 
 	// ...
 }
@@ -33,7 +33,8 @@ void UTankAimingComponent::AimAt(FVector HitLocation, float launchSpeed)
 	TArray<AActor*> ignoredActors = TArray<AActor*>();
 	ignoredActors.Add(this->GetOwner());
 	
-	bool bHaveAimSolution = UGameplayStatics::SuggestProjectileVelocity
+	//this bug and gives a lot of no solution
+	/*bool bHaveAimSolution = UGameplayStatics::SuggestProjectileVelocity
 	(
 		this, OutLaunchVelocity,
 		StartLocation, HitLocation, launchSpeed,
@@ -41,6 +42,14 @@ void UTankAimingComponent::AimAt(FVector HitLocation, float launchSpeed)
 		ESuggestProjVelocityTraceOption::TraceFullPath, FCollisionResponseParams::DefaultResponseParam,
 		ignoredActors,
 		true
+	);*/
+
+	bool bHaveAimSolution = UGameplayStatics::SuggestProjectileVelocity
+	(
+		this, OutLaunchVelocity,
+		StartLocation, HitLocation, launchSpeed,
+		false, 0.0f, 0.0f,
+		ESuggestProjVelocityTraceOption::DoNotTrace // Paramater must be present to prevent bug
 	);
 
 	if (bHaveAimSolution)
@@ -48,6 +57,13 @@ void UTankAimingComponent::AimAt(FVector HitLocation, float launchSpeed)
 		FVector AimDirection = OutLaunchVelocity.GetSafeNormal();
 		//UE_LOG(LogTemp, Warning, TEXT("Aiming at %s"), *AimDirection.ToString());
 		MoveBarrelTowards(AimDirection);
+		float Time = this->GetWorld()->GetTimeSeconds();
+		UE_LOG(LogTemp, Warning, TEXT("%f : Aim solution found %s"), Time, *OutLaunchVelocity.ToString());
+	}
+	else
+	{
+		float Time = this->GetWorld()->GetTimeSeconds();
+		UE_LOG(LogTemp, Warning, TEXT("%f : No Aim solution found"), Time);
 	}
 
 	//no solution found
@@ -58,7 +74,7 @@ void UTankAimingComponent::MoveBarrelTowards(FVector AimDirection)
 	//work out difference between current barrel rotation and aimdirection
 	FRotator BarrelRotator = this->m_barrel->GetForwardVector().Rotation();
 	FRotator AimAsRotator = AimDirection.Rotation();
-	UE_LOG(LogTemp, Warning, TEXT("AimAsRotator : %s"), *AimAsRotator.ToString());
+	//UE_LOG(LogTemp, Warning, TEXT("AimAsRotator : %s"), *AimAsRotator.ToString());
 
 	FRotator DeltaRotator = AimAsRotator - BarrelRotator;	
 

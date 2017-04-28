@@ -71,6 +71,6 @@ void ATankAIController::AimTowardsTarget()
 	if (Target == nullptr)
 		return;
 
-	this->GetControlledTank()->AimAt(Target->GetActorLocation());
+	//this->GetControlledTank()->AimAt(Target->GetActorLocation());
 }
 

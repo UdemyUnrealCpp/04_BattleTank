@@ -20,9 +20,9 @@ class BATTLETANK_API ATankPlayerController : public APlayerController
 
 
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 		float CrosshairXLocation = 0.5f;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 		float CrosshairYLocation = 1.0f / 3.0f;
 	
 	

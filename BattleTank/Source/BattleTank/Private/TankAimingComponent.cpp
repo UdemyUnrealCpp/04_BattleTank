@@ -65,12 +65,12 @@ void UTankAimingComponent::AimAt(FVector HitLocation, float launchSpeed)
 		MoveBarrelTowards(AimDirection);
 		MoveTurretTowards(AimDirection);
 		float Time = this->GetWorld()->GetTimeSeconds();
-		UE_LOG(LogTemp, Warning, TEXT("%f : Aim solution found %s"), Time, *OutLaunchVelocity.ToString());
+		//UE_LOG(LogTemp, Warning, TEXT("%f : Aim solution found %s"), Time, *OutLaunchVelocity.ToString());
 	}
 	else
 	{
 		float Time = this->GetWorld()->GetTimeSeconds();
-		UE_LOG(LogTemp, Warning, TEXT("%f : No Aim solution found"), Time);
+		//UE_LOG(LogTemp, Warning, TEXT("%f : No Aim solution found"), Time);
 	}
 
 	//no solution found
@@ -93,7 +93,7 @@ void UTankAimingComponent::MoveTurretTowards(FVector AimDirection)
 	//work out difference between current barrel rotation and aimdirection
 	FRotator TurretRotator = this->m_turret->GetForwardVector().Rotation();
 	FRotator AimAsRotator = AimDirection.Rotation();
-	UE_LOG(LogTemp, Warning, TEXT("AimAsRotator : %s"), *AimAsRotator.ToString());
+	//UE_LOG(LogTemp, Warning, TEXT("AimAsRotator : %s"), *AimAsRotator.ToString());
 
 	FRotator DeltaRotator = AimAsRotator - TurretRotator;
 

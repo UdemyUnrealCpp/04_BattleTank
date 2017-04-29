@@ -36,6 +36,11 @@ void ATank::AimAt(FVector HitLocation)
 	this->m_tankAimingComponent->AimAt(HitLocation, m_launchSpeed);
 }
 
+void ATank::Fire()
+{
+	UE_LOG(LogTemp, Warning, TEXT("%f TANK Fire"), this->GetWorld()->GetTimeSeconds());
+}
+
 void ATank::SetBarrelReference(UTankBarrel * BarrelToSet)
 {
 	this->m_tankAimingComponent->SetBarrelReference(BarrelToSet);

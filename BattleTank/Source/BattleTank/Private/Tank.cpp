@@ -1,6 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "BattleTank.h"
+#include "TankBarrel.h"
+#include "Projectile.h"
 #include "TankAimingComponent.h"
 #include "Tank.h"
 
@@ -38,12 +40,20 @@ void ATank::AimAt(FVector HitLocation)
 
 void ATank::Fire()
 {
-	UE_LOG(LogTemp, Warning, TEXT("%f TANK Fire"), this->GetWorld()->GetTimeSeconds());
+	if (this->m_barrel == nullptr)
+		return;
+
+	UE_LOG(LogTemp, Warning, TEXT("%f TANK Fire"), this->GetWorld()->GetTimeSeconds());	
+
+	FVector StartLocation = this->m_barrel->GetSocketLocation(FName("Projectile"));
+	FRotator StartRotation = this->m_barrel->GetSocketRotation(FName("Projectile"));
+	this->GetWorld()->SpawnActor<AProjectile>(this->m_projectileBlueprint, StartLocation, StartRotation);
 }
 
 void ATank::SetBarrelReference(UTankBarrel * BarrelToSet)
 {
 	this->m_tankAimingComponent->SetBarrelReference(BarrelToSet);
+	this->m_barrel = BarrelToSet;
 }
 
 void ATank::SetTurretReference(UTankTurret * TurretToSet)

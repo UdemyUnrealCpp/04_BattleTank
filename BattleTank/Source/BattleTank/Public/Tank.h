@@ -28,6 +28,9 @@ protected:
 	//Local barrel reference for spawning projectile
 	UTankBarrel* m_barrel = nullptr;
 
+	float m_reloadTimeInSeconds = 3.0f;
+	double m_lastFireTime = 0;
+
 public:
 	// Sets default values for this pawn's properties
 	ATank();	

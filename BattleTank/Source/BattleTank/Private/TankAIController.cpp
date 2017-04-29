@@ -66,12 +66,17 @@ ATank* ATankAIController::GetPlayerTank() const
 
 void ATankAIController::AimTowardsTarget()
 {
-	if (this->GetControlledTank() == nullptr)
+
+	ATank* ControlledTank = this->GetControlledTank();
+
+	if (ControlledTank == nullptr)
 		return;
 
 	if (Target == nullptr)
 		return;
 
-	//this->GetControlledTank()->AimAt(Target->GetActorLocation());
+	ControlledTank->AimAt(Target->GetActorLocation());
+
+	ControlledTank->Fire();
 }
 

@@ -37,5 +37,21 @@ void UTankMovementComponent::IntendTurnRight(float Throw)
 	//TODO prevent double speed due to dual control use
 }
 
+void UTankMovementComponent::RequestDirectMove(const FVector& MoveVelocity, bool bForceMaxSpeed)
+{
+	//FString TankName = this->GetOwner()->GetName();
+	//FVector AIFowardIntention = MoveVelocity.GetSafeNormal();
+	//UE_LOG(LogTemp, Warning, TEXT("%s moves velocity %s"), *TankName, *(AIFowardIntention.ToString()))
+
+	FVector TankForward = this->GetOwner()->GetActorForwardVector().GetSafeNormal();
+	FVector AIFowardIntention = MoveVelocity.GetSafeNormal();
+
+	float Dot = FVector::DotProduct(TankForward, AIFowardIntention);
+	IntendMoveForward(Dot);
+
+	FVector Cross = FVector::CrossProduct(TankForward, AIFowardIntention);
+	IntendTurnRight(Cross.Z);
+}
+
 
 

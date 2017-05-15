@@ -37,7 +37,19 @@ void ATankAIController::Tick(float fDeltaTime)
 {
 	Super::Tick(fDeltaTime);
 
-	AimTowardsTarget();
+	ATank* ControlledTank = this->GetControlledTank();
+
+	if (ControlledTank == nullptr)
+		return;
+
+	if (Target == nullptr)
+		return;
+
+	MoveToActor(Target, AcceptanceRadius);
+
+	ControlledTank->AimAt(Target->GetActorLocation());
+
+	ControlledTank->Fire();
 }
 
 ATank* ATankAIController::GetControlledTank() const
@@ -63,20 +75,3 @@ ATank* ATankAIController::GetPlayerTank() const
 
 	return nullptr;
 }
-
-void ATankAIController::AimTowardsTarget()
-{
-
-	ATank* ControlledTank = this->GetControlledTank();
-
-	if (ControlledTank == nullptr)
-		return;
-
-	if (Target == nullptr)
-		return;
-
-	ControlledTank->AimAt(Target->GetActorLocation());
-
-	ControlledTank->Fire();
-}
-

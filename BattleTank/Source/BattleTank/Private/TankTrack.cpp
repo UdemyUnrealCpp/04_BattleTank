@@ -7,8 +7,8 @@
 
 void UTankTrack::SetThrottle(float fThrottle)
 {
-	FString Name = this->GetName();
-	UE_LOG(LogTemp, Warning, TEXT("%s Throttle : %f"), *Name, fThrottle);
+	//FString Name = this->GetName();
+	//UE_LOG(LogTemp, Warning, TEXT("%s Throttle : %f"), *Name, fThrottle);
 
 	//TODO clamp actual  throttle value so player can't overdrive
 	FVector ForceApplied = this->GetForwardVector() * fThrottle * this->TrackMaxDrivingForce;

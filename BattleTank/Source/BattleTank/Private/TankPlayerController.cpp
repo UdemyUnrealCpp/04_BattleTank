@@ -2,24 +2,21 @@
 
 #include "BattleTank.h"
 #include "Tank.h"
+#include "TankAimingComponent.h"
 #include "TankPlayerController.h"
 
 
 void ATankPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
-	UE_LOG(LogTemp, Warning, TEXT("BeginPlay tank play controller"));
 
-	ATank* playerTank = this->GetControlledTank();
+	UTankAimingComponent* AimComp = this->GetControlledTank()->FindComponentByClass<UTankAimingComponent>();
 
-	if (playerTank == nullptr)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("NO TANK"));
-	}
+	if (ensure(AimComp))
+		FoundAimingComponent(AimComp);
 	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("TANK FOUND %s"), *(playerTank->GetName()));
-	}	
+		UE_LOG(LogTemp, Warning, TEXT("Player controller can't find aiming component at begin play"));
+
 }
 
 
@@ -37,7 +34,7 @@ ATank* ATankPlayerController::GetControlledTank() const
 
 void ATankPlayerController::AimTowardsCrosshair()
 {
-	if (GetControlledTank() == nullptr)
+	if (!ensure(GetControlledTank()))
 		return;
 
 	FVector hitLocation = FVector::ZeroVector;

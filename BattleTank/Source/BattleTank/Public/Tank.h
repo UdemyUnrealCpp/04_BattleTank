@@ -30,34 +30,21 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Firing")
 		float m_reloadTimeInSeconds = 3.0f;	
 
-	UPROPERTY(EditAnywhere, Category = Setup)
+	UPROPERTY(EditAnywhere, Category = "Setup")
 		TSubclassOf<AProjectile> m_projectileBlueprint;
-
-	//Local barrel reference for spawning projectile
-	UTankBarrel* m_barrel = nullptr;	
 
 	double m_lastFireTime = 0;
 
 public:
 	// Sets default values for this pawn's properties
-	ATank();	
-
-	UFUNCTION(BlueprintCallable, Category = Setup)
-	void SetBarrelReference(UTankBarrel* BarrelToSet);
-	UFUNCTION(BlueprintCallable, Category = Setup)
-	void SetTurretReference(UTankTurret* TurretToSet);
+	ATank();
 
 	void AimAt(FVector HitLocation);
-	UFUNCTION(BlueprintCallable, Category = Fire)
+	UFUNCTION(BlueprintCallable, Category = "Fire")
 		void Fire();
-
 
 protected:
 
 	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;	
-	
+	virtual void BeginPlay() override;	
 };

@@ -12,27 +12,22 @@
 ATank::ATank()
 {
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = false;	
 
-	this->m_tankAimingComponent = CreateDefaultSubobject<UTankAimingComponent>(FName("Aiming Component"));	
+	UE_LOG(LogTemp, Warning, TEXT("%s : Donkey : ATank : Constructor"), *this->GetName());
 }
 
 // Called when the game starts or when spawned
 void ATank::BeginPlay()
 {
 	Super::BeginPlay();
-	
-}
-
-// Called to bind functionality to input
-void ATank::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
+	UE_LOG(LogTemp, Warning, TEXT("%s : Donkey : ATank : BeginPlay"), *this->GetName());
 }
 
 void ATank::AimAt(FVector HitLocation)
 {
+	if (!ensure(this->m_tankAimingComponent != nullptr))
+		return;
 	//UE_LOG(LogTemp, Warning, TEXT("TANK %s aiming at %s"), *this->GetName(), *(HitLocation.ToString()));
 
 	this->m_tankAimingComponent->AimAt(HitLocation, m_launchSpeed);
@@ -40,30 +35,24 @@ void ATank::AimAt(FVector HitLocation)
 
 void ATank::Fire()
 {
+	if (!ensure(this->m_tankAimingComponent))
+		return;
+
 	bool bIsReloaded = (FPlatformTime::Seconds() - m_lastFireTime) >= m_reloadTimeInSeconds ? true : false;
 
-	if (this->m_barrel != nullptr && bIsReloaded)
+	UTankBarrel *TankBarrel = this->m_tankAimingComponent->GetBarrel();
+
+	if (TankBarrel != nullptr && bIsReloaded)
 	{
 		//UE_LOG(LogTemp, Warning, TEXT("%f TANK Fire"), this->GetWorld()->GetTimeSeconds());
 
-		FVector StartLocation = this->m_barrel->GetSocketLocation(FName("Projectile"));
-		FRotator StartRotation = this->m_barrel->GetSocketRotation(FName("Projectile"));
+		FVector StartLocation = TankBarrel->GetSocketLocation(FName("Projectile"));
+		FRotator StartRotation = TankBarrel->GetSocketRotation(FName("Projectile"));
 		AProjectile* NewProjectile = this->GetWorld()->SpawnActor<AProjectile>(this->m_projectileBlueprint, StartLocation, StartRotation);
 		NewProjectile->LaunchProjectile(this->m_launchSpeed);
 
 		m_lastFireTime = FPlatformTime::Seconds();
 	}
-}
-
-void ATank::SetBarrelReference(UTankBarrel * BarrelToSet)
-{
-	this->m_tankAimingComponent->SetBarrelReference(BarrelToSet);
-	this->m_barrel = BarrelToSet;
-}
-
-void ATank::SetTurretReference(UTankTurret * TurretToSet)
-{
-	this->m_tankAimingComponent->SetTurretReference(TurretToSet);
 }
 
 

@@ -14,22 +14,22 @@ void ATankAIController::BeginPlay()
 
 	if(aiTank == nullptr)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("AI HAS NOT TANK"));
+		//UE_LOG(LogTemp, Warning, TEXT("AI HAS NOT TANK"));
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("AI CONTROL TANK %s"), *(aiTank->GetName()));
+		//UE_LOG(LogTemp, Warning, TEXT("AI CONTROL TANK %s"), *(aiTank->GetName()));
 	}	
 
 	this->Target = this->GetPlayerTank();
 
 	if (Target == nullptr)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("NO TANK PLAYER FOUND"));
+		//UE_LOG(LogTemp, Warning, TEXT("NO TANK PLAYER FOUND"));
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("TANK PLAYER FOUND %s"), *(Target->GetName()));
+		//UE_LOG(LogTemp, Warning, TEXT("TANK PLAYER FOUND %s"), *(Target->GetName()));
 	}
 }
 
@@ -39,10 +39,10 @@ void ATankAIController::Tick(float fDeltaTime)
 
 	ATank* ControlledTank = this->GetControlledTank();
 
-	if (ControlledTank == nullptr)
+	if (!ensure(ControlledTank))
 		return;
 
-	if (Target == nullptr)
+	if (!ensure(Target))
 		return;
 
 	MoveToActor(Target, AcceptanceRadius);

@@ -18,15 +18,16 @@ class BATTLETANK_API ATank : public APawn
 
 protected:
 
+	UPROPERTY(BlueprintReadOnly)
 	UTankAimingComponent* m_tankAimingComponent = nullptr;
 
 	UPROPERTY(BlueprintReadOnly)
 	UTankMovementComponent* m_tankMovementComponent = nullptr;
 
-	UPROPERTY(EditDefaultsOnly, Category = Firing)
+	UPROPERTY(EditDefaultsOnly, Category = "Firing")
 		float m_launchSpeed = 4000;
 
-	UPROPERTY(EditDefaultsOnly, Category = Firing)
+	UPROPERTY(EditDefaultsOnly, Category = "Firing")
 		float m_reloadTimeInSeconds = 3.0f;	
 
 	UPROPERTY(EditAnywhere, Category = Setup)

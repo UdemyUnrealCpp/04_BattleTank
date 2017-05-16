@@ -44,7 +44,7 @@ void ATank::Fire()
 
 	if (this->m_barrel != nullptr && bIsReloaded)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("%f TANK Fire"), this->GetWorld()->GetTimeSeconds());
+		//UE_LOG(LogTemp, Warning, TEXT("%f TANK Fire"), this->GetWorld()->GetTimeSeconds());
 
 		FVector StartLocation = this->m_barrel->GetSocketLocation(FName("Projectile"));
 		FRotator StartRotation = this->m_barrel->GetSocketRotation(FName("Projectile"));

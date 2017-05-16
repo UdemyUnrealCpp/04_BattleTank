@@ -17,40 +17,28 @@ void UTankMovementComponent::IntendMoveForward(float Throw)
 {
 	if (!LeftTrack || !RightTrack) { return; }
 
-	//UE_LOG(LogTemp, Warning, TEXT("Intend move forward : %f"), Throw);
-
 	this->LeftTrack->SetThrottle(Throw);
 	this->RightTrack->SetThrottle(Throw);
-
-	//TODO prevent double speed due to dual control use
 }
 
 void UTankMovementComponent::IntendTurnRight(float Throw)
 {
 	if (!LeftTrack || !RightTrack) { return; }
 
-	//UE_LOG(LogTemp, Warning, TEXT("Intend turn right : %f"), Throw);
-
 	this->LeftTrack->SetThrottle(Throw);
 	this->RightTrack->SetThrottle(-Throw);
-
-	//TODO prevent double speed due to dual control use
 }
 
 void UTankMovementComponent::RequestDirectMove(const FVector& MoveVelocity, bool bForceMaxSpeed)
 {
-	//FString TankName = this->GetOwner()->GetName();
-	//FVector AIFowardIntention = MoveVelocity.GetSafeNormal();
-	//UE_LOG(LogTemp, Warning, TEXT("%s moves velocity %s"), *TankName, *(AIFowardIntention.ToString()))
-
 	FVector TankForward = this->GetOwner()->GetActorForwardVector().GetSafeNormal();
 	FVector AIFowardIntention = MoveVelocity.GetSafeNormal();
 
-	float Dot = FVector::DotProduct(TankForward, AIFowardIntention);
-	IntendMoveForward(Dot);
+	float ForwardThrow = FVector::DotProduct(TankForward, AIFowardIntention);
+	IntendMoveForward(ForwardThrow);
 
-	FVector Cross = FVector::CrossProduct(TankForward, AIFowardIntention);
-	IntendTurnRight(Cross.Z);
+	FVector RightThrow = FVector::CrossProduct(TankForward, AIFowardIntention);
+	IntendTurnRight(RightThrow.Z);
 }
 
 

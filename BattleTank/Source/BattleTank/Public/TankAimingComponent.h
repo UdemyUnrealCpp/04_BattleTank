@@ -63,5 +63,8 @@ private:
 	void MoveTurretTowards(FVector AimDirection);
 
 	double m_lastFireTime = 0;
+
+	bool IsBarrelMoving();
+	FVector m_aimDirection;
 	
 };

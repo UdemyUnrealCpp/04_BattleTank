@@ -31,11 +31,19 @@ void UTankAimingComponent::TickComponent(float DeltaTime, enum ELevelTick TickTy
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	UE_LOG(LogTemp, Warning, TEXT("Tick Component"));
+	//UE_LOG(LogTemp, Warning, TEXT("Tick Component"));
 
-	if ((FPlatformTime::Seconds() - m_lastFireTime) > m_reloadTimeInSeconds)
+	if ((FPlatformTime::Seconds() - m_lastFireTime) < m_reloadTimeInSeconds)
 	{
 		this->m_eFiringState = EFiringState::EFiringStatus_RELOADING;
+	}
+	else if (IsBarrelMoving())
+	{
+		this->m_eFiringState = EFiringState::EFiringStatus_AIMING;
+	}
+	else
+	{
+		this->m_eFiringState = EFiringState::EFiringStatus_LOCKED;
 	}
 }
 
@@ -73,15 +81,16 @@ void UTankAimingComponent::AimAt(FVector HitLocation)
 
 	if (bHaveAimSolution)
 	{
-		FVector AimDirection = OutLaunchVelocity.GetSafeNormal();
+		m_aimDirection = OutLaunchVelocity.GetSafeNormal();
 		//UE_LOG(LogTemp, Warning, TEXT("Aiming at %s"), *AimDirection.ToString());
-		MoveBarrelTowards(AimDirection);
-		MoveTurretTowards(AimDirection);
+		MoveBarrelTowards(m_aimDirection);
+		MoveTurretTowards(m_aimDirection);
 		float Time = this->GetWorld()->GetTimeSeconds();
 		//UE_LOG(LogTemp, Warning, TEXT("%f : Aim solution found %s"), Time, *OutLaunchVelocity.ToString());
 	}
 	else
 	{
+		m_aimDirection = FVector::ZeroVector;
 		float Time = this->GetWorld()->GetTimeSeconds();
 		//UE_LOG(LogTemp, Warning, TEXT("%f : No Aim solution found"), Time);
 	}
@@ -136,5 +145,14 @@ void UTankAimingComponent::MoveTurretTowards(FVector AimDirection)
 	FRotator DeltaRotator = AimAsRotator - TurretRotator;
 
 	this->m_turret->Rotate(DeltaRotator.Yaw);
+}
+
+bool UTankAimingComponent::IsBarrelMoving()
+{
+	if (!ensure(m_barrel)) { return false; }
+
+	FVector BarrelForward = this->m_barrel->GetForwardVector();
+	
+	return !BarrelForward.Equals(m_aimDirection, 0.01f);
 }
 

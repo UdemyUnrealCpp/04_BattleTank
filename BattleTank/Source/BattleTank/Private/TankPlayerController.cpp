@@ -20,11 +20,13 @@ void ATankPlayerController::BeginPlay()
 void ATankPlayerController::Tick(float fDeltaTime)
 {
 	Super::Tick(fDeltaTime);
-	AimTowardsCrosshair();
+    AimTowardsCrosshair();
 }
 
 void ATankPlayerController::AimTowardsCrosshair()
 {
+	if (!GetPawn()) { return; } //if not possessing
+
 	UTankAimingComponent* AimComp = this->GetPawn()->FindComponentByClass<UTankAimingComponent>();
 	if (!ensure(AimComp)) { return; }
 
@@ -34,7 +36,7 @@ void ATankPlayerController::AimTowardsCrosshair()
 	{		
 		//tell controlled tank to aim at this point
 		AimComp->AimAt(hitLocation);
-	}		
+	}
 }
 
 //Get world location if linetrace through crosshair, true if hits landscape

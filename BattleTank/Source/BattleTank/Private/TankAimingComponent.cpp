@@ -12,13 +12,31 @@ UTankAimingComponent::UTankAimingComponent()
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = false;
+	bWantsBeginPlay = true;
+	PrimaryComponentTick.bCanEverTick = true;
 }
 
 void UTankAimingComponent::Initialise(UTankBarrel* barrelToSet, UTankTurret* turretToSet)
 {
 	this->m_barrel = barrelToSet;
 	this->m_turret = turretToSet;
+}
+
+void UTankAimingComponent::BeginPlay()
+{
+	this->m_lastFireTime = FPlatformTime::Seconds();
+}
+
+void UTankAimingComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction)
+{
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	UE_LOG(LogTemp, Warning, TEXT("Tick Component"));
+
+	if ((FPlatformTime::Seconds() - m_lastFireTime) > m_reloadTimeInSeconds)
+	{
+		this->m_eFiringState = EFiringState::EFiringStatus_RELOADING;
+	}
 }
 
 void UTankAimingComponent::AimAt(FVector HitLocation)
@@ -73,14 +91,13 @@ void UTankAimingComponent::AimAt(FVector HitLocation)
 
 void UTankAimingComponent::Fire()
 {
-	if (!ensure(this->m_barrel))
-		return;
-
-	bool bIsReloaded = (FPlatformTime::Seconds() - m_lastFireTime) >= m_reloadTimeInSeconds ? true : false;
-
-	if (bIsReloaded)
+	if (this->m_eFiringState != EFiringState::EFiringStatus_RELOADING)
 	{
 		//UE_LOG(LogTemp, Warning, TEXT("%f TANK Fire"), this->GetWorld()->GetTimeSeconds());
+
+		if(!ensure(this->m_barrel)) { return; }
+
+		if(!ensure(this->m_projectileBlueprint)) { return; }
 
 		FVector StartLocation = this->m_barrel->GetSocketLocation(FName("Projectile"));
 		FRotator StartRotation = this->m_barrel->GetSocketRotation(FName("Projectile"));

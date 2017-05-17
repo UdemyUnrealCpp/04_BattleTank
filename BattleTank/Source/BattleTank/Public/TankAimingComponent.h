@@ -34,9 +34,13 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Fire")
 	void Fire();
 
+	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) override;
+
+	virtual void BeginPlay() override;
+
 protected:
 	UPROPERTY(BlueprintReadOnly, Category = "State")
-		EFiringState m_eFiringStatus = EFiringState::EFiringStatus_RELOADING;
+		EFiringState m_eFiringState = EFiringState::EFiringStatus_RELOADING;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Firing")
 		float m_launchSpeed = 4000;

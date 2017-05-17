@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "BattleTank.h"
-#include "Tank.h"
+#include "TankAimingComponent.h"
 #include "EngineUtils.h"
 #include "TankAIController.h"
 
@@ -9,56 +9,35 @@
 void ATankAIController::BeginPlay()
 {
 	Super::BeginPlay();
-
-	ATank* aiTank = this->GetControlledTank();
-
-	if(aiTank == nullptr)
-	{
-		//UE_LOG(LogTemp, Warning, TEXT("AI HAS NOT TANK"));
-	}
-	else
-	{
-		//UE_LOG(LogTemp, Warning, TEXT("AI CONTROL TANK %s"), *(aiTank->GetName()));
-	}	
-
-	this->Target = this->GetPlayerTank();
-
-	if (Target == nullptr)
-	{
-		//UE_LOG(LogTemp, Warning, TEXT("NO TANK PLAYER FOUND"));
-	}
-	else
-	{
-		//UE_LOG(LogTemp, Warning, TEXT("TANK PLAYER FOUND %s"), *(Target->GetName()));
-	}
 }
 
 void ATankAIController::Tick(float fDeltaTime)
 {
 	Super::Tick(fDeltaTime);
 
-	ATank* ControlledTank = this->GetControlledTank();
+	APawn* ControlledTank = this->GetPawn();
+	APawn* PlayerTank = this->GetPlayerTank();
 
-	if (!ensure(ControlledTank))
+	if (!ensure(ControlledTank && PlayerTank))
 		return;
 
-	if (!ensure(Target))
-		return;
+	MoveToActor(PlayerTank, AcceptanceRadius);
 
-	MoveToActor(Target, AcceptanceRadius);
+	//ControlledTank->AimAt(Target->GetActorLocation());
+	UTankAimingComponent *AimComp = this->GetPawn()->FindComponentByClass<UTankAimingComponent>();
+	if (!ensure(AimComp != nullptr)) { return; }
 
-	ControlledTank->AimAt(Target->GetActorLocation());
+	AimComp->AimAt(PlayerTank->GetActorLocation());
 
-	ControlledTank->Fire();
+	//TODO fix firing
+	//ControlledTank->Fire();
 }
 
-ATank* ATankAIController::GetControlledTank() const
+APawn* ATankAIController::GetPlayerTank() const
 {
-	return Cast<ATank>(this->GetPawn());
-}
-
-ATank* ATankAIController::GetPlayerTank() const
-{
+	return this->GetWorld()->GetFirstPlayerController()->GetPawn();
+	//TODO need to find a solution to check if pawn is a tank without use cast <ATank>
+	/*
 	//loop through all APlayerController for the world
 	for (TActorIterator<APlayerController> iterator(GetWorld()); iterator; ++iterator)
 	{
@@ -69,9 +48,10 @@ ATank* ATankAIController::GetPlayerTank() const
 		{
 			//UE_LOG(LogTemp, Warning, TEXT("FOUND PLAYER CONTROLLER %s"), *(playerTank->GetName()));
 			//return first player tank found
-			return playerTank;
+			return iterator->GetPawn();
 		}
 	}
+	*/
 
 	return nullptr;
 }

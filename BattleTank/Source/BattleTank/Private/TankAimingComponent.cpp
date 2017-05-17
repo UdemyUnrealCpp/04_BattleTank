@@ -25,7 +25,7 @@ UTankBarrel *UTankAimingComponent::GetBarrel() const
 	return this->m_barrel;
 }
 
-void UTankAimingComponent::AimAt(FVector HitLocation, float launchSpeed)
+void UTankAimingComponent::AimAt(FVector HitLocation)
 {
 	if (!ensure(m_barrel))
 		return;
@@ -52,7 +52,7 @@ void UTankAimingComponent::AimAt(FVector HitLocation, float launchSpeed)
 	bool bHaveAimSolution = UGameplayStatics::SuggestProjectileVelocity
 	(
 		this, OutLaunchVelocity,
-		StartLocation, HitLocation, launchSpeed,
+		StartLocation, HitLocation, this->m_launchSpeed,
 		false, 0.0f, 0.0f,
 		ESuggestProjVelocityTraceOption::DoNotTrace // Paramater must be present to prevent bug
 	);

@@ -24,13 +24,19 @@ class BATTLETANK_API UTankAimingComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
-public:		
+public:
+	UPROPERTY(EditDefaultsOnly, Category = "Firing")
+		float m_launchSpeed = 4000;
+
+
 	UFUNCTION(BlueprintCallable, Category = "Setup")
 	void Initialise(UTankBarrel* barrelToSet, UTankTurret* turretToSet);
 
-	void AimAt(FVector HitLocation, float launchSpeed);
+	void AimAt(FVector HitLocation);
 
 	UTankBarrel *GetBarrel() const;
+
+
 
 protected:
 	UPROPERTY(BlueprintReadOnly, Category = "State")

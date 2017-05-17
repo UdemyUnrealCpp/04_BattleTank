@@ -3,7 +3,6 @@
 #include "BattleTank.h"
 #include "TankBarrel.h"
 #include "Projectile.h"
-#include "TankAimingComponent.h"
 #include "Tank.h"
 
 
@@ -18,10 +17,9 @@ ATank::ATank()
 void ATank::BeginPlay()
 {
 	Super::BeginPlay();
-
-	this->m_tankAimingComponent = this->FindComponentByClass<UTankAimingComponent>();
 }
 
+/*
 void ATank::AimAt(FVector HitLocation)
 {
 	if (!ensure(this->m_tankAimingComponent != nullptr))
@@ -30,22 +28,21 @@ void ATank::AimAt(FVector HitLocation)
 
 	this->m_tankAimingComponent->AimAt(HitLocation, m_launchSpeed);
 }
+*/
 
 void ATank::Fire()
 {
-	if (!ensure(this->m_tankAimingComponent))
+	if (!ensure(this->m_barrel))
 		return;
 
 	bool bIsReloaded = (FPlatformTime::Seconds() - m_lastFireTime) >= m_reloadTimeInSeconds ? true : false;
 
-	UTankBarrel *TankBarrel = this->m_tankAimingComponent->GetBarrel();
-
-	if (TankBarrel != nullptr && bIsReloaded)
+	if (bIsReloaded)
 	{
 		//UE_LOG(LogTemp, Warning, TEXT("%f TANK Fire"), this->GetWorld()->GetTimeSeconds());
 
-		FVector StartLocation = TankBarrel->GetSocketLocation(FName("Projectile"));
-		FRotator StartRotation = TankBarrel->GetSocketRotation(FName("Projectile"));
+		FVector StartLocation = this->m_barrel->GetSocketLocation(FName("Projectile"));
+		FRotator StartRotation = this->m_barrel->GetSocketRotation(FName("Projectile"));
 		AProjectile* NewProjectile = this->GetWorld()->SpawnActor<AProjectile>(this->m_projectileBlueprint, StartLocation, StartRotation);
 		NewProjectile->LaunchProjectile(this->m_launchSpeed);
 

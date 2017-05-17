@@ -1,7 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "BattleTank.h"
-#include "Tank.h"
 #include "TankAimingComponent.h"
 #include "TankPlayerController.h"
 
@@ -10,7 +9,7 @@ void ATankPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 
-	UTankAimingComponent* AimComp = this->GetControlledTank()->FindComponentByClass<UTankAimingComponent>();
+	UTankAimingComponent* AimComp = this->GetPawn()->FindComponentByClass<UTankAimingComponent>();
 
 	if (!ensure(AimComp)) { return; }
 		
@@ -24,25 +23,17 @@ void ATankPlayerController::Tick(float fDeltaTime)
 	AimTowardsCrosshair();
 }
 
-
-ATank* ATankPlayerController::GetControlledTank() const
-{
-	return Cast<ATank>(this->GetPawn());
-}
-
 void ATankPlayerController::AimTowardsCrosshair()
 {
-	if (!ensure(GetControlledTank()))
-		return;
+	UTankAimingComponent* AimComp = this->GetPawn()->FindComponentByClass<UTankAimingComponent>();
+	if (!ensure(AimComp)) { return; }
 
 	FVector hitLocation = FVector::ZeroVector;
 
 	if (GetSightRayHitLocation(hitLocation))
-	{
-		//UE_LOG(LogTemp, Warning, TEXT("Hit location : %s"), *hitLocation.ToString());
-		
+	{		
 		//tell controlled tank to aim at this point
-		GetControlledTank()->AimAt(hitLocation);
+		AimComp->AimAt(hitLocation);
 	}		
 }
 
@@ -80,7 +71,7 @@ bool ATankPlayerController::GetLookVectorHitLocation(FVector LookDirection, FVec
 	//get camera location
 	FVector StartLocation = this->PlayerCameraManager->GetCameraLocation();
 	FVector EndLocation = StartLocation + (LookDirection * LineTraceRangeCentimeters);
-	FCollisionQueryParams TraceParams = FCollisionQueryParams(FName(TEXT("")), false, GetControlledTank());
+	FCollisionQueryParams TraceParams = FCollisionQueryParams(FName(TEXT("")), false, this->GetPawn());
 
 	if (GetWorld()->LineTraceSingleByChannel(HitResult, StartLocation, EndLocation, ECollisionChannel::ECC_Visibility, TraceParams))
 	{

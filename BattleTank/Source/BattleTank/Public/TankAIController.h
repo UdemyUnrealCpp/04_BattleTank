@@ -8,9 +8,6 @@
 #include "AIController.h"
 #include "TankAIController.generated.h"
 
-
-class ATank;
-
 /**
  * 
  */
@@ -24,12 +21,9 @@ private:
 	virtual void BeginPlay() override;
 	virtual void Tick(float fDeltaTime) override;
 
-	ATank* GetControlledTank() const;
-	ATank* GetPlayerTank() const;
+	APawn* GetPlayerTank() const;
 
 	void AimTowardsTarget();
-
-	ATank* Target;
 
 	//How close can the AI tank get
 	float AcceptanceRadius = 3000;

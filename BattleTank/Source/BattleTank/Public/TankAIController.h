@@ -2,9 +2,6 @@
 
 #pragma once
 
-
-
-
 #include "AIController.h"
 #include "TankAIController.generated.h"
 

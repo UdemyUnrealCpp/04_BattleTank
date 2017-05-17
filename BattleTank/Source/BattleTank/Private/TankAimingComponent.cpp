@@ -3,6 +3,7 @@
 
 #include "TankBarrel.h"
 #include "TankTurret.h"
+#include "Projectile.h"
 
 #include "TankAimingComponent.h"
 
@@ -18,11 +19,6 @@ void UTankAimingComponent::Initialise(UTankBarrel* barrelToSet, UTankTurret* tur
 {
 	this->m_barrel = barrelToSet;
 	this->m_turret = turretToSet;
-}
-
-UTankBarrel *UTankAimingComponent::GetBarrel() const
-{
-	return this->m_barrel;
 }
 
 void UTankAimingComponent::AimAt(FVector HitLocation)
@@ -75,6 +71,26 @@ void UTankAimingComponent::AimAt(FVector HitLocation)
 	//no solution found
 }
 
+void UTankAimingComponent::Fire()
+{
+	if (!ensure(this->m_barrel))
+		return;
+
+	bool bIsReloaded = (FPlatformTime::Seconds() - m_lastFireTime) >= m_reloadTimeInSeconds ? true : false;
+
+	if (bIsReloaded)
+	{
+		//UE_LOG(LogTemp, Warning, TEXT("%f TANK Fire"), this->GetWorld()->GetTimeSeconds());
+
+		FVector StartLocation = this->m_barrel->GetSocketLocation(FName("Projectile"));
+		FRotator StartRotation = this->m_barrel->GetSocketRotation(FName("Projectile"));
+		AProjectile* NewProjectile = this->GetWorld()->SpawnActor<AProjectile>(this->m_projectileBlueprint, StartLocation, StartRotation);
+		NewProjectile->LaunchProjectile(this->m_launchSpeed);
+
+		m_lastFireTime = FPlatformTime::Seconds();
+	}
+}
+
 void UTankAimingComponent::MoveBarrelTowards(FVector AimDirection)
 {
 	if (!ensure(m_barrel))
@@ -87,7 +103,7 @@ void UTankAimingComponent::MoveBarrelTowards(FVector AimDirection)
 
 	FRotator DeltaRotator = AimAsRotator - BarrelRotator;	
 
-	this->m_barrel->Elevate(DeltaRotator.Pitch);//TODO remove magic number
+	this->m_barrel->Elevate(DeltaRotator.Pitch);
 }
 
 void UTankAimingComponent::MoveTurretTowards(FVector AimDirection)
@@ -95,13 +111,13 @@ void UTankAimingComponent::MoveTurretTowards(FVector AimDirection)
 	if (!ensure(m_turret))
 		return;
 
-	//work out difference between current barrel rotation and aimdirection
+	//work out difference between current turret rotation and aimdirection
 	FRotator TurretRotator = this->m_turret->GetForwardVector().Rotation();
 	FRotator AimAsRotator = AimDirection.Rotation();
 	//UE_LOG(LogTemp, Warning, TEXT("AimAsRotator : %s"), *AimAsRotator.ToString());
 
 	FRotator DeltaRotator = AimAsRotator - TurretRotator;
 
-	this->m_turret->Rotate(DeltaRotator.Yaw);//TODO remove magic number
+	this->m_turret->Rotate(DeltaRotator.Yaw);
 }
 

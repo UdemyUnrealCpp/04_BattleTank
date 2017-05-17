@@ -28,9 +28,7 @@ void ATankAIController::Tick(float fDeltaTime)
 	if (!ensure(AimComp != nullptr)) { return; }
 
 	AimComp->AimAt(PlayerTank->GetActorLocation());
-
-	//TODO fix firing
-	//ControlledTank->Fire();
+	AimComp->Fire();
 }
 
 APawn* ATankAIController::GetPlayerTank() const

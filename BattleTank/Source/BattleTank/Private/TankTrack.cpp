@@ -31,7 +31,6 @@ void UTankTrack::DriveTrack()
 void UTankTrack::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
 	FString TankName = this->GetOwner()->GetName();
-	UE_LOG(LogTemp, Warning, TEXT("%s ON HIT IS CALLED"), *TankName);
 
 	ApplySidewaysForce();
 	DriveTrack();

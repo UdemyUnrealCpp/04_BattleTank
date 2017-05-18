@@ -144,6 +144,20 @@ void UTankAimingComponent::MoveTurretTowards(FVector AimDirection)
 
 	FRotator DeltaRotator = AimAsRotator - TurretRotator;
 
+	//in positive if the delta yaw is more than 180, we need to go to the opposite
+	//exemple go from 0 to 200 -> long range but the shortest is 0 to -140
+	//use -360 to go to the opposite
+	if (DeltaRotator.Yaw > 180.0f)
+	{
+		DeltaRotator.Yaw = DeltaRotator.Yaw - 360.0f;
+	}
+	//exemple go from 0 to -200 -> long range but the shortest is 0 to 140
+	//use +360 to go to the opposite
+	else if (DeltaRotator.Yaw < -180.0f)
+	{
+		DeltaRotator.Yaw = DeltaRotator.Yaw + 360.0f;
+	}
+
 	this->m_turret->Rotate(DeltaRotator.Yaw);
 }
 

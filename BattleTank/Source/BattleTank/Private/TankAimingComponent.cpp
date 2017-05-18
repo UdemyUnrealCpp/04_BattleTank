@@ -31,19 +31,25 @@ void UTankAimingComponent::TickComponent(float DeltaTime, enum ELevelTick TickTy
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	//UE_LOG(LogTemp, Warning, TEXT("Tick Component"));
-
+	FString TankName = this->GetOwner()->GetName();
+	
 	if ((FPlatformTime::Seconds() - m_lastFireTime) < m_reloadTimeInSeconds)
 	{
 		this->m_eFiringState = EFiringState::EFiringStatus_RELOADING;
+		UE_LOG(LogTemp, Warning, TEXT("%s RELOADING"), *TankName);
+
 	}
 	else if (IsBarrelMoving())
 	{
 		this->m_eFiringState = EFiringState::EFiringStatus_AIMING;
+		UE_LOG(LogTemp, Warning, TEXT("%s AIMING"), *TankName);
+
 	}
 	else
 	{
 		this->m_eFiringState = EFiringState::EFiringStatus_LOCKED;
+		UE_LOG(LogTemp, Warning, TEXT("%s LOCKED"), *TankName);
+
 	}
 }
 
@@ -115,6 +121,11 @@ void UTankAimingComponent::Fire()
 
 		m_lastFireTime = FPlatformTime::Seconds();
 	}
+}
+
+EFiringState UTankAimingComponent::GetFiringState() const
+{
+	return this->m_eFiringState;
 }
 
 void UTankAimingComponent::MoveBarrelTowards(FVector AimDirection)

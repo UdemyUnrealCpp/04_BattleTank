@@ -34,9 +34,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Fire")
 	void Fire();
 
-	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) override;
 
-	virtual void BeginPlay() override;
+	EFiringState GetFiringState() const;
+	
 
 protected:
 	UPROPERTY(BlueprintReadOnly, Category = "State")
@@ -61,6 +61,10 @@ private:
 
 	void MoveBarrelTowards(FVector AimDirection);
 	void MoveTurretTowards(FVector AimDirection);
+
+	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) override;
+
+	virtual void BeginPlay() override;
 
 	double m_lastFireTime = 0;
 

@@ -164,7 +164,9 @@ void UTankAimingComponent::MoveTurretTowards(FVector AimDirection)
 	//UE_LOG(LogTemp, Warning, TEXT("AimAsRotator : %s"), *AimAsRotator.ToString());
 
 	FRotator DeltaRotator = AimAsRotator - TurretRotator;
-
+	
+	//SOLUTION 1
+	/*
 	//in positive if the delta yaw is more than 180, we need to go to the opposite
 	//exemple go from 0 to 200 -> long range but the shortest is 0 to -140
 	//use -360 to go to the opposite
@@ -178,8 +180,24 @@ void UTankAimingComponent::MoveTurretTowards(FVector AimDirection)
 	{
 		DeltaRotator.Yaw = DeltaRotator.Yaw + 360.0f;
 	}
-
 	this->m_turret->Rotate(DeltaRotator.Yaw);
+	*/
+
+	//SOLUTION 2
+	//180.0f is the middle if the delta is less than the middle
+	//Keep the direction
+	if (FMath::Abs(DeltaRotator.Yaw) < 180.0f)
+	{
+		this->m_turret->Rotate(DeltaRotator.Yaw);
+	}
+	else
+	//180.0f is the middle if the delta is more than the middle
+	//the short angle is the opposite (use -1)
+	{
+		this->m_turret->Rotate(-DeltaRotator.Yaw);
+	}
+
+	
 }
 
 bool UTankAimingComponent::IsBarrelMoving()

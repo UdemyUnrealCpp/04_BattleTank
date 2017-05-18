@@ -33,23 +33,27 @@ void UTankAimingComponent::TickComponent(float DeltaTime, enum ELevelTick TickTy
 
 	FString TankName = this->GetOwner()->GetName();
 	
-	if ((FPlatformTime::Seconds() - m_lastFireTime) < m_reloadTimeInSeconds)
+	if (m_iNumberAmmoLeft <= 0)
+	{
+		this->m_eFiringState = EFiringState::EFiringStatus_OUT_OF_AMMO;
+	}
+	else if ((FPlatformTime::Seconds() - m_lastFireTime) < m_reloadTimeInSeconds)
 	{
 		this->m_eFiringState = EFiringState::EFiringStatus_RELOADING;
-		UE_LOG(LogTemp, Warning, TEXT("%s RELOADING"), *TankName);
+		//UE_LOG(LogTemp, Warning, TEXT("%s RELOADING"), *TankName);
 
 	}
 	else if (IsBarrelMoving())
 	{
 		this->m_eFiringState = EFiringState::EFiringStatus_AIMING;
-		UE_LOG(LogTemp, Warning, TEXT("%s AIMING"), *TankName);
+		//UE_LOG(LogTemp, Warning, TEXT("%s AIMING"), *TankName);
 
 	}
 	else
 	{
 		this->m_eFiringState = EFiringState::EFiringStatus_LOCKED;
-		UE_LOG(LogTemp, Warning, TEXT("%s LOCKED"), *TankName);
-
+		//UE_LOG(LogTemp, Warning, TEXT("%s LOCKED"), *TankName);
+		
 	}
 }
 
@@ -106,7 +110,7 @@ void UTankAimingComponent::AimAt(FVector HitLocation)
 
 void UTankAimingComponent::Fire()
 {
-	if (this->m_eFiringState != EFiringState::EFiringStatus_RELOADING)
+	if (this->m_eFiringState == EFiringState::EFiringStatus_LOCKED || this->m_eFiringState == EFiringState::EFiringStatus_AIMING)
 	{
 		//UE_LOG(LogTemp, Warning, TEXT("%f TANK Fire"), this->GetWorld()->GetTimeSeconds());
 
@@ -120,12 +124,18 @@ void UTankAimingComponent::Fire()
 		NewProjectile->LaunchProjectile(this->m_launchSpeed);
 
 		m_lastFireTime = FPlatformTime::Seconds();
+		m_iNumberAmmoLeft = m_iNumberAmmoLeft -1;
 	}
 }
 
 EFiringState UTankAimingComponent::GetFiringState() const
 {
 	return this->m_eFiringState;
+}
+
+int UTankAimingComponent::GetAmmoLeft() const
+{
+	return this->m_iNumberAmmoLeft;
 }
 
 void UTankAimingComponent::MoveBarrelTowards(FVector AimDirection)

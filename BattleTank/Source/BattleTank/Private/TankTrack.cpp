@@ -5,7 +5,7 @@
 
 UTankTrack::UTankTrack()
 {
-	PrimaryComponentTick.bCanEverTick = true;
+	PrimaryComponentTick.bCanEverTick = false;
 }
 
 void UTankTrack::BeginPlay()
@@ -15,25 +15,14 @@ void UTankTrack::BeginPlay()
 	OnComponentHit.AddDynamic(this, &UTankTrack::OnHit);
 }
 
-void UTankTrack::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-	
-	//Calculate the slippage speed
-	//if tank goes to the right cause the physics he value will be high than one
-	float SlippageSpeed = FVector::DotProduct(this->GetRightVector(), this->GetComponentVelocity());
-	//Work out the required acceleration this frame to correct
-	// a = v / t
-	FVector CorrectionAcceleration = (-SlippageSpeed / DeltaTime) * this->GetRightVector();
-	//Calculate and apply sideways for (F = m a)
-	UStaticMeshComponent* TankRoot = Cast<UStaticMeshComponent>(this->GetOwner()->GetRootComponent());
-	FVector CorrectionForce = (TankRoot->GetMass() * CorrectionAcceleration) / 2.0f; //divide by 2 cause 2 tracks
-	TankRoot->AddForce(CorrectionForce);
-}
-
 void UTankTrack::SetThrottle(float fThrottle)
 {
-	FVector ForceApplied = this->GetForwardVector() * fThrottle * this->TrackMaxDrivingForce;
+	this->m_throttleCurrent = FMath::Clamp<float>(this->m_throttleCurrent + fThrottle, -1.0f, 1.0f);
+}
+
+void UTankTrack::DriveTrack()
+{	
+	FVector ForceApplied = this->GetForwardVector() * this->m_throttleCurrent * this->TrackMaxDrivingForce;
 	FVector ForceLocation = this->GetComponentLocation();
 	UPrimitiveComponent* TankRoot = Cast<UPrimitiveComponent>(this->GetOwner()->GetRootComponent());
 	TankRoot->AddForceAtLocation(ForceApplied, ForceLocation);
@@ -43,6 +32,27 @@ void UTankTrack::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UP
 {
 	FString TankName = this->GetOwner()->GetName();
 	UE_LOG(LogTemp, Warning, TEXT("%s ON HIT IS CALLED"), *TankName);
+
+	ApplySidewaysForce();
+	DriveTrack();
+	//reset throttle current to avoid keeping speed
+	this->m_throttleCurrent = 0.0f;
+}
+
+void UTankTrack::ApplySidewaysForce()
+{
+	//Calculate the slippage speed
+	//if tank goes to the right cause the physics he value will be high than one
+	float SlippageSpeed = FVector::DotProduct(this->GetRightVector(), this->GetComponentVelocity());
+
+	float DeltaTime = this->GetWorld()->GetDeltaSeconds();
+	//Work out the required acceleration this frame to correct
+	// a = v / t
+	FVector CorrectionAcceleration = (-SlippageSpeed / DeltaTime) * this->GetRightVector();
+	//Calculate and apply sideways for (F = m a)
+	UStaticMeshComponent* TankRoot = Cast<UStaticMeshComponent>(this->GetOwner()->GetRootComponent());
+	FVector CorrectionForce = (TankRoot->GetMass() * CorrectionAcceleration) / 2.0f; //divide by 2 cause 2 tracks
+	TankRoot->AddForce(CorrectionForce);
 }
 
 

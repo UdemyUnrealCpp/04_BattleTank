@@ -40,6 +40,10 @@ private:
 
 	UFUNCTION()
 		void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
-	
+
+	UPROPERTY(EditDefaultsOnly, Category = "Destroy")
+	float m_destroyDelay = 10.0f;
+
+	void OnTimerExpire();	
 	
 };

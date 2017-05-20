@@ -32,6 +32,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Setup")
 		UParticleSystemComponent* m_impactBlast = nullptr;
 
+	UPROPERTY(VisibleAnywhere, Category = "Setup")
+		URadialForceComponent* m_explosionForce = nullptr;
+
 
 private:
 

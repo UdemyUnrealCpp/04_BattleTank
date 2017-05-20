@@ -4,6 +4,7 @@
 #include "TankAimingComponent.h"
 #include "EngineUtils.h"
 #include "TankAIController.h"
+#include "Tank.h"
 
 
 void ATankAIController::BeginPlay()
@@ -54,4 +55,25 @@ APawn* ATankAIController::GetPlayerTank() const
 	*/
 
 	return nullptr;
+}
+
+void ATankAIController::SetPawn(APawn * InPawn)
+{
+	Super::SetPawn(InPawn);
+
+	if (InPawn)
+	{
+		ATank* PossessedTank = Cast<ATank>(InPawn);
+
+		if (!ensure(PossessedTank)) { return; }
+		
+		PossessedTank->OnDeath.AddUniqueDynamic(this, &ATankAIController::OnPossessedTankDeath);
+	}
+}
+
+void ATankAIController::OnPossessedTankDeath()
+{
+	if (!this->GetPawn()) { return; }
+
+	this->GetPawn()->DetachFromControllerPendingDestroy();
 }

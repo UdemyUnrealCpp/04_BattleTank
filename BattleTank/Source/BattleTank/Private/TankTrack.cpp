@@ -41,7 +41,7 @@ void UTankTrack::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UP
 void UTankTrack::ApplySidewaysForce()
 {
 	//Calculate the slippage speed
-	//if tank goes to the right cause the physics he value will be high than one
+	//if tank goes to the right cause the physics he value will be more than one
 	float SlippageSpeed = FVector::DotProduct(this->GetRightVector(), this->GetComponentVelocity());
 
 	float DeltaTime = this->GetWorld()->GetDeltaSeconds();

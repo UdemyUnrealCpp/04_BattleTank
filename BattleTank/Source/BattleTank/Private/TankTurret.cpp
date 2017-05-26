@@ -14,3 +14,11 @@ void UTankTurret::Rotate(float RelativeSpeed)
 	this->SetRelativeRotation(FRotator(0, RawNewRotation, 0));
 }
 
+void UTankTurret::SetRotationYaw(float RotationYaw)
+{
+	//UE_LOG(LogTemp, Warning, TEXT("Angle : %f"), RotationYawn);
+	this->SetRelativeRotation(FRotator(0, RotationYaw, 0));
+
+	//this->SetWorldRotation(FRotator(0, RotationYaw, 0));
+}
+

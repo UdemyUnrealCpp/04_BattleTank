@@ -12,7 +12,7 @@ UTankAimingComponent::UTankAimingComponent()
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
-	bWantsBeginPlay = true;
+	//bWantsBeginPlay = true;
 	PrimaryComponentTick.bCanEverTick = true;
 }
 
@@ -57,7 +57,7 @@ void UTankAimingComponent::TickComponent(float DeltaTime, enum ELevelTick TickTy
 	}
 }
 
-void UTankAimingComponent::AimAt(FVector HitLocation)
+void UTankAimingComponent::AimAtLocation(FVector HitLocation)
 {
 	if (!ensure(m_barrel))
 		return;
@@ -66,7 +66,8 @@ void UTankAimingComponent::AimAt(FVector HitLocation)
 	//UE_LOG(LogTemp, Warning, TEXT("Firing at %f"), launchSpeed);
 
 	FVector OutLaunchVelocity;
-	FVector StartLocation = m_barrel->GetSocketLocation(FName("Projectile"));
+	FVector StartLocation = this->m_turret->GetComponentLocation();
+	//m_barrel->GetSocketWorldLocationAndRotation(FName("Projectile"), StartLocation, StartRotation);
 	TArray<AActor*> ignoredActors = TArray<AActor*>();
 	ignoredActors.Add(this->GetOwner());
 	
@@ -80,13 +81,16 @@ void UTankAimingComponent::AimAt(FVector HitLocation)
 		ignoredActors,
 		true
 	);*/
-
+	
 	bool bHaveAimSolution = UGameplayStatics::SuggestProjectileVelocity
 	(
 		this, OutLaunchVelocity,
 		StartLocation, HitLocation, this->m_launchSpeed,
 		false, 0.0f, 0.0f,
-		ESuggestProjVelocityTraceOption::DoNotTrace // Paramater must be present to prevent bug
+		ESuggestProjVelocityTraceOption::TraceFullPath, // Paramater must be present to prevent bug
+		FCollisionResponseParams::DefaultResponseParam,
+		ignoredActors,
+		false
 	);
 
 	if (bHaveAimSolution)
@@ -95,17 +99,29 @@ void UTankAimingComponent::AimAt(FVector HitLocation)
 		//UE_LOG(LogTemp, Warning, TEXT("Aiming at %s"), *AimDirection.ToString());
 		MoveBarrelTowards(m_aimDirection);
 		MoveTurretTowards(m_aimDirection);
-		float Time = this->GetWorld()->GetTimeSeconds();
+
+		//float Time = this->GetWorld()->GetTimeSeconds();
 		//UE_LOG(LogTemp, Warning, TEXT("%f : Aim solution found %s"), Time, *OutLaunchVelocity.ToString());
 	}
 	else
 	{
 		m_aimDirection = FVector::ZeroVector;
-		float Time = this->GetWorld()->GetTimeSeconds();
+
+		//float Time = this->GetWorld()->GetTimeSeconds();
 		//UE_LOG(LogTemp, Warning, TEXT("%f : No Aim solution found"), Time);
 	}
 
 	//no solution found
+}
+
+void UTankAimingComponent::AimAtDirection(FVector Direction)
+{
+	if (!ensure(m_barrel))
+		return;
+
+	m_aimDirection = Direction;
+	MoveBarrelTowards(m_aimDirection);
+	MoveTurretTowards(m_aimDirection);
 }
 
 void UTankAimingComponent::Fire()
@@ -119,9 +135,12 @@ void UTankAimingComponent::Fire()
 		if(!ensure(this->m_projectileBlueprint)) { return; }
 
 		FVector StartLocation = this->m_barrel->GetSocketLocation(FName("Projectile"));
-		FRotator StartRotation = this->m_barrel->GetSocketRotation(FName("Projectile"));
+		//FRotator StartRotation = this->m_barrel->GetSocketRotation(FName("Projectile"));		
+		FRotator StartRotation = m_aimDirection.Rotation();
 		AProjectile* NewProjectile = this->GetWorld()->SpawnActor<AProjectile>(this->m_projectileBlueprint, StartLocation, StartRotation);
-		NewProjectile->LaunchProjectile(this->m_launchSpeed);
+		//NewProjectile->LaunchProjectile(this->m_launchSpeed);
+		NewProjectile->LaunchProjectile(m_aimDirection, this->m_launchSpeed);
+
 
 		m_lastFireTime = FPlatformTime::Seconds();
 		m_iNumberAmmoLeft = m_iNumberAmmoLeft -1;
@@ -138,11 +157,39 @@ int32 UTankAimingComponent::GetAmmoLeft() const
 	return this->m_iNumberAmmoLeft;
 }
 
+FVector UTankAimingComponent::GetTurretLocation() const
+{
+	if (!this->m_turret) { return FVector::ZeroVector; }
+
+	return this->m_turret->GetComponentLocation();
+}
+
+
+FVector UTankAimingComponent::GetBarrelLocation() const
+{
+	if (!this->m_barrel) { return FVector::ZeroVector; }
+
+	return this->m_barrel->GetComponentLocation();
+}
+
 void UTankAimingComponent::MoveBarrelTowards(FVector AimDirection)
 {
 	if (!ensure(m_barrel))
 		return;
 
+	FRotator AimAsRotator = AimDirection.Rotation();
+	this->m_barrel->SetRotationPitch(AimAsRotator.Pitch);
+
+	DrawDebugLine(
+		GetWorld(),
+		this->m_barrel->GetComponentLocation(),
+		this->m_barrel->GetComponentLocation() + AimDirection * 10000000.0f,
+		FColor(255, 0, 0),
+		false, -1, 0,
+		12.333
+	);
+
+	/*
 	//work out difference between current barrel rotation and aimdirection
 	FRotator BarrelRotator = this->m_barrel->GetForwardVector().Rotation();
 	FRotator AimAsRotator = AimDirection.Rotation();
@@ -150,20 +197,38 @@ void UTankAimingComponent::MoveBarrelTowards(FVector AimDirection)
 
 	FRotator DeltaRotator = AimAsRotator - BarrelRotator;	
 
-	this->m_barrel->Elevate(DeltaRotator.Pitch);
+	this->m_barrel->Elevate(DeltaRotator);*/
 }
 
 void UTankAimingComponent::MoveTurretTowards(FVector AimDirection)
 {
 	if (!ensure(m_turret))
 		return;
+	
+	//UE_LOG(LogTemp, Warning, TEXT("AimDirection : %s"), *AimDirection.ToString());
+
+	FRotator AimAsRotator = AimDirection.Rotation();
+	float RotationYaw = AimAsRotator.Yaw;
+
+	FVector Tankroot = this->GetOwner()->GetActorForwardVector();
+	FRotator Tankrootrotation = Tankroot.Rotation();
+	//UE_LOG(LogTemp, Warning, TEXT("Yaw : %f ___ %f"), RotationYaw, Tankrootrotation.Yaw);
+
+
+	RotationYaw = RotationYaw;
+	this->m_turret->SetRotationYaw(RotationYaw - Tankrootrotation.Yaw);
+	
+	
+	
+	
+	//USE RELATIVE SPEED
 
 	//work out difference between current turret rotation and aimdirection
+	/*
 	FRotator TurretRotator = this->m_turret->GetForwardVector().Rotation();
 	FRotator AimAsRotator = AimDirection.Rotation();
-	//UE_LOG(LogTemp, Warning, TEXT("AimAsRotator : %s"), *AimAsRotator.ToString());
-
 	FRotator DeltaRotator = AimAsRotator - TurretRotator;
+	*/
 	
 	//SOLUTION 1
 	/*
@@ -183,6 +248,7 @@ void UTankAimingComponent::MoveTurretTowards(FVector AimDirection)
 	this->m_turret->Rotate(DeltaRotator.Yaw);
 	*/
 
+	/*
 	//SOLUTION 2
 	//180.0f is the middle if the delta is less than the middle
 	//Keep the direction
@@ -195,7 +261,7 @@ void UTankAimingComponent::MoveTurretTowards(FVector AimDirection)
 	//the short angle is the opposite (use -1)
 	{
 		this->m_turret->Rotate(-DeltaRotator.Yaw);
-	}
+	}*/
 
 	
 }

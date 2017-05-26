@@ -43,6 +43,8 @@ private:
 
 	//return OUT parameter, true if hit landscape
 	bool GetSightRayHitLocation(FVector &outHitLocation) const;
+	bool GetSightRayHitDirection(FVector &outHitDirection) const;
+	FVector GetSightLookDirection() const;
 	//deproject the screen position of the crosshair to a world direction
 	bool GetLookDirection(FVector2D ScreenLocation, FVector& LookDirection) const;	
 	bool GetLookVectorHitLocation(FVector LookDirection, FVector& HitLocation) const;

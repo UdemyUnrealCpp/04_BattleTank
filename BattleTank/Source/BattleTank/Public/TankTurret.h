@@ -18,6 +18,8 @@ public:
 
 	void Rotate(float RelativeSpeed);
 
+	void SetRotationYaw(float RotationYaw);
+
 private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Setup")

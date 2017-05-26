@@ -44,6 +44,12 @@ void AProjectile::LaunchProjectile(float Speed)
 	this->m_projectileMovement->Activate();
 }
 
+void AProjectile::LaunchProjectile(FVector Direction,float Speed)
+{
+	this->m_projectileMovement->SetVelocityInLocalSpace(FVector::ForwardVector * Speed);
+	this->m_projectileMovement->Activate();
+}
+
 void AProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
 	//UE_LOG(LogTemp, Warning, TEXT("HIT %s"), *HitComponent->GetName())

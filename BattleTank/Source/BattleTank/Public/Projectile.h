@@ -15,6 +15,8 @@ public:
 	AProjectile();
 
 	void LaunchProjectile(float Speed);
+	void LaunchProjectile(FVector Direction, float Speed);
+
 
 protected:
 	// Called when the game starts or when spawned

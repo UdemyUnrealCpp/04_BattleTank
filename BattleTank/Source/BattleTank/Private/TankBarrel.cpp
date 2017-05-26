@@ -18,3 +18,12 @@ void UTankBarrel::Elevate(float RelativeSpeed)
 	this->SetRelativeRotation(FRotator(Elevation, 0.0f, 0.0f));
 }
 
+
+
+void UTankBarrel::SetRotationPitch(float RotationPitch)
+{
+	float RawNewElevation = RotationPitch;
+	float PitchClamped = FMath::Clamp<float>(RawNewElevation, this->m_elevationInDegreeMin, this->m_elevationInDegreeMax);
+	this->SetRelativeRotation(FRotator(PitchClamped, 0, 0));
+}
+

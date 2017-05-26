@@ -30,7 +30,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Setup")
 	void Initialise(UTankBarrel* barrelToSet, UTankTurret* turretToSet);
 
-	void AimAt(FVector HitLocation);
+	void AimAtLocation(FVector HitLocation);
+	void AimAtDirection(FVector Direction);
 
 	UFUNCTION(BlueprintCallable, Category = "Firing")
 	void Fire();	
@@ -39,6 +40,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Firing")
 	int32 GetAmmoLeft() const;
+
+	FVector GetTurretLocation() const;
+	FVector GetBarrelLocation() const;
 
 protected:
 	UPROPERTY(BlueprintReadOnly, Category = "State")
